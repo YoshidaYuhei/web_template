@@ -7,7 +7,6 @@ AIコーディングアシスタント向けの、OpenSpecを使用したスペ�
 - 既存の作業を検索: `openspec spec list --long`、`openspec list`（全文検索には`rg`のみ使用）
 - スコープを決定: 新機能 vs 既存機能の変更
 - 一意の`change-id`を選択: ケバブケース、動詞で始める（`add-`、`update-`、`remove-`、`refactor-`）
-- スキャフォールド: `proposal.md`、`tasks.md`、`design.md`（必要な場合のみ）、影響を受ける機能ごとのデルタスペック
 - デルタを記述: `## ADDED|MODIFIED|REMOVED|RENAMED Requirements`を使用；要件ごとに少なくとも1つの`#### Scenario:`を含める
 - 検証: `openspec validate [change-id] --strict`で問題を修正
 - 承認を要求: 提案が承認されるまで実装を開始しない
@@ -42,9 +41,11 @@ AIコーディングアシスタント向けの、OpenSpecを使用したスペ�
 
 **ワークフロー**
 1. `openspec/project.md`、`openspec list`、`openspec list --specs`を確認して現在のコンテキストを理解する。
-2. 一意の動詞で始まる`change-id`を選択し、`openspec/changes/<id>/`の下に`proposal.md`、`tasks.md`、オプションの`design.md`、およびスペックデルタをスキャフォールドする。
-3. `## ADDED|MODIFIED|REMOVED Requirements`を使用してスペックデルタを作成し、要件ごとに少なくとも1つの`#### Scenario:`を含める。
-4. `openspec validate <id> --strict`を実行し、提案を共有する前に問題を解決する。
+2. 一意の動詞で始まる`change-id`を選択し、`openspec/changes/<id>/`の下に`proposal.md`を作成する。
+3. `openspec/changes/<id>/`の下に`proposal.md`が作成されれば `openspec:adr` コマンドでArchitectureDesitionRecord(`adr.md`ファイル)を作成する。
+4. `adr.md` を下に具体的に何をしなければいけないかをリスト化し、`tasks.md` を作成する
+5. `## ADDED|MODIFIED|REMOVED Requirements`を使用してスペックデルタを作成し、要件ごとに少なくとも1つの`#### Scenario:`を含める。
+6. `openspec validate <id> --strict`を実行し、提案を共有する前に問題を解決する。
 
 ### 段階2: 変更の実装
 これらのステップをTODOとして追跡し、1つずつ完了する。
