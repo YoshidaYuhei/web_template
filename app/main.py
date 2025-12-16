@@ -6,9 +6,10 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
+# FastAPIインスタンスの生成
 app = FastAPI(
     title=settings.app_name,
-    description="お悩み相談チャットアプリ API",
+    description="マッチングアプリ API",
     version="0.1.0",
 )
 
@@ -21,4 +22,4 @@ app.add_middleware(
 )
 
 
-app.include_router(api_router)
+app.include_router(api_router, prefix="/api/v1")

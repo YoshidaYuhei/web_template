@@ -45,7 +45,7 @@ class TestHealthCheckEndpoint:
     @pytest.mark.asyncio
     async def test_health_endpoint_returns_200_when_healthy(self, client):
         """正常時に HTTP 200 が返ることを確認"""
-        response = await client.get("/health")
+        response = await client.get("/api/v1/health")
 
         # DBが接続できれば200、できなければ503
         assert response.status_code in [200, 503]
@@ -53,7 +53,7 @@ class TestHealthCheckEndpoint:
     @pytest.mark.asyncio
     async def test_health_endpoint_response_structure(self, client):
         """レスポンスに必須フィールドが含まれることを確認"""
-        response = await client.get("/health")
+        response = await client.get("/api/v1/health")
         data = response.json()
 
         assert "status" in data

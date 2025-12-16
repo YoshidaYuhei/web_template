@@ -1,0 +1,2 @@
+- guest_user: 未ログインユーザー
+- signed_user: ログイン済みユーザー
