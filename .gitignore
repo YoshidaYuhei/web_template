@@ -4,11 +4,11 @@ __pycache__/
 *$py.class
 
 # AIドキュメント
-docs/
-.claude/
-CLAUDE.md
-AGENTS.md
-project.md
+# docs/
+# .claude/
+# CLAUDE.md
+# AGENTS.md
+# project.md
 # C extensions
 *.so
 
@@ -211,3 +211,9 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Terraform / OpenTofu
+infrastructure/.terraform/
+infrastructure/*.tfstate
+infrastructure/*.tfstate.backup
+infrastructure/.terraform.lock.hcl

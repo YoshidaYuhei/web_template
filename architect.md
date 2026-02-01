@@ -1,8 +1,8 @@
-# Warry About - システムアーキテクチャ
+# Web Template - システムアーキテクチャ
 
 ## 概要
 
-「Warry About」は、お悩み相談チャットアプリのバックエンドAPIです。ユーザーがAI（OpenAI）と対話して悩みを相談できるシステムです。
+Web開発する時のテンプレート
 
 ## 技術スタック
 
@@ -10,7 +10,7 @@
 |---------|------|
 | 言語 | Python 3.x |
 | Webフレームワーク | FastAPI |
-| データベース | MySQL 8.0 |
+| データベース | PostgreSQL 16 |
 | ORM | SQLAlchemy (非同期) |
 | マイグレーション | Alembic |
 | 認証 | JWT (python-jose) + bcrypt (passlib) |
@@ -21,7 +21,7 @@
 ## ディレクトリ構造
 
 ```
-warry_about/
+system_name/
 ├── app/
 │   ├── __init__.py
 │   ├── main.py              # FastAPIアプリケーションのエントリーポイント
@@ -71,7 +71,7 @@ warry_about/
    - ポート: 8000
    - 開発時はホットリロード有効
 
-2. **db**: MySQL 8.0
-   - ポート: 3306
+2. **db**: PostgreSQL 16
+   - ポート: 5432
    - ヘルスチェック付き
    - データ永続化（named volume）

@@ -1,12 +1,23 @@
+import os
+
 import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+from app.core.security import create_access_token, get_password_hash
+from app.models import SessionStatus, Summary, TranscribeSession, Transcript, User
+
+# 環境変数からDB設定を取得
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_NAME = os.getenv("DB_NAME")
+DB_PORT = os.getenv("DB_PORT")
+
 # テスト用DB設定（同じコンテナ内の別DB）
-TEST_DATABASE_URL = "mysql+aiomysql://warry:warry_password@localhost:3306/warry_about_test"
+TEST_DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@localhost:{DB_PORT}/{DB_NAME}_test"
 
 # 無効なDB設定（異常系テスト用）
-INVALID_DATABASE_URL = "mysql+aiomysql://invalid:invalid@localhost:9999/invalid"
+INVALID_DATABASE_URL = "postgresql+asyncpg://invalid:invalid@localhost:9999/invalid"
 
 
 @pytest.fixture

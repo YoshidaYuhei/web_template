@@ -2,7 +2,7 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "5173:5173"
+      - "${FRONTEND_PORT}:5173"
     environment:
       - VITE_API_URL=http://app:8000
     depends_on:
@@ -14,40 +14,57 @@ services:
   app:
     build: .
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT}:8000"
     environment:
       - DB_HOST=db
-      - DB_PORT=3306
-      - DB_USER=warry
-      - DB_PASSWORD=warry_password
-      - DB_NAME=warry_about
+      - DB_PORT=5432
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
       - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - DEBUG=true
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     volumes:
       - .:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   db:
-    image: mysql:8.0
+    image: postgres:16
     environment:
-      - MYSQL_ROOT_PASSWORD=root_password
-      - MYSQL_DATABASE=warry_about
-      - MYSQL_USER=warry
-      - MYSQL_PASSWORD=warry_password
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - PACKAGE_NAME=${PACKAGE_NAME}
     ports:
-      - "3306:3306"
+      - "${DB_PORT}:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
-      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sh:/docker-entrypoint-initdb.d/init.sh:ro
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
 
 volumes:
-  mysql_data:
+  postgres_data:
+  redis_data:
