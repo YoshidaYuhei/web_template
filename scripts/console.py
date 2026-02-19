@@ -12,11 +12,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # アプリケーションのimport
-from sqlalchemy import text  # noqa: E402
 
 from app.core.config import get_settings  # noqa: E402
 from app.db.session import AsyncSessionLocal  # noqa: E402
-from app.main import app  # noqa: E402
 
 settings = get_settings()
 db = AsyncSessionLocal()

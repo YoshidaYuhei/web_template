@@ -14,7 +14,9 @@ router = APIRouter(tags=["internal"])
 SessionFactory = Callable[[], AsyncSession]
 
 
-async def check_database(session_factory: SessionFactory | None = None) -> DatabaseHealth:
+async def check_database(
+    session_factory: SessionFactory | None = None,
+) -> DatabaseHealth:
     """データベース接続を確認する"""
     if session_factory is None:
         session_factory = AsyncSessionLocal
@@ -51,6 +53,8 @@ async def health_check() -> JSONResponse:
     )
 
     return JSONResponse(
-        status_code=status.HTTP_200_OK if is_healthy else status.HTTP_503_SERVICE_UNAVAILABLE,
+        status_code=status.HTTP_200_OK
+        if is_healthy
+        else status.HTTP_503_SERVICE_UNAVAILABLE,
         content=response.model_dump(),
     )

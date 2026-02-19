@@ -5,7 +5,8 @@ description: adr.md を参照してコーディングを行う
 usage:
   どのIssueに対する指示かわからない場合、Issue番号を要求する
   adr.md の設計に基づいて、tasks.md の順番に従ってコーディングを行う
-  各ステップでユーザーからの承認を求めること
+  ユーザーの承認は求めずにテストまで実行し、テストが通ればPullRequestを作成して push してください
+  テストで通らなかった場合、何が通らなかったかを tasks.md に記述し、作業を停止してください
 
 step:
   1. `.claude/gudelines/testcode.md`と`.claude/gudelines/design_pattern.md`を読み込む

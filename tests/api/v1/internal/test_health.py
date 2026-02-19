@@ -14,7 +14,9 @@ class TestHealthCheckSuccess:
         assert result.status == "connected"
 
     @pytest.mark.asyncio
-    async def test_health_check_error_is_none_when_connected(self, test_session_factory):
+    async def test_health_check_error_is_none_when_connected(
+        self, test_session_factory
+    ):
         """DB接続成功時に error が None であることを確認"""
         result = await check_database(session_factory=test_session_factory)
 
@@ -25,7 +27,9 @@ class TestHealthCheckFailure:
     """DB接続失敗時のテスト"""
 
     @pytest.mark.asyncio
-    async def test_health_check_returns_disconnected_status(self, invalid_session_factory):
+    async def test_health_check_returns_disconnected_status(
+        self, invalid_session_factory
+    ):
         """DB接続失敗時に status が "disconnected" であることを確認"""
         result = await check_database(session_factory=invalid_session_factory)
 
