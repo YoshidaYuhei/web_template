@@ -41,7 +41,6 @@ services:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - PACKAGE_NAME=${PACKAGE_NAME}
     ports:
       - "${DB_PORT}:5432"
     volumes:

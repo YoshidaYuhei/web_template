@@ -1,20 +1,15 @@
-import os
-
 import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from app.core.security import create_access_token, get_password_hash
-from app.models import SessionStatus, Summary, TranscribeSession, Transcript, User
+from app.core.config import get_settings
+from app.db.base import Base
 
-# 環境変数からDB設定を取得
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_NAME = os.getenv("DB_NAME")
-DB_PORT = os.getenv("DB_PORT")
+# Settings経由でDB設定を取得
+settings = get_settings()
 
 # テスト用DB設定（同じコンテナ内の別DB）
-TEST_DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@localhost:{DB_PORT}/{DB_NAME}_test"
+TEST_DATABASE_URL = f"postgresql+asyncpg://{settings.db_user}:{settings.db_password}@localhost:{settings.db_port}/{settings.db_name}_test"
 
 # 無効なDB設定（異常系テスト用）
 INVALID_DATABASE_URL = "postgresql+asyncpg://invalid:invalid@localhost:9999/invalid"
@@ -23,13 +18,19 @@ INVALID_DATABASE_URL = "postgresql+asyncpg://invalid:invalid@localhost:9999/inva
 @pytest.fixture
 async def test_session_factory():
     """テスト用セッションファクトリ"""
-    engine = create_async_engine(TEST_DATABASE_URL, echo=True)
+    import app.models  # noqa: F401 — Baseにモデルを登録するために必要
+
+    engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
     session_factory = async_sessionmaker(
         engine,
         class_=AsyncSession,
         expire_on_commit=False,
     )
     yield session_factory
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
     await engine.dispose()
 
 

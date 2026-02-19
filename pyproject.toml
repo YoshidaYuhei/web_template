@@ -41,10 +41,15 @@ dev = [
 [tool.ruff]
 target-version = "py311"
 line-length = 88
+exclude = ["alembic"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
 ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# SQLAlchemy の relationship の文字列参照を未定義と誤検知するため除外
+"app/models/*.py" = ["F821"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["app"]
@@ -52,6 +57,12 @@ known-first-party = ["app"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+# asyncpg接続のteardown時に"coroutine 'Connection._cancel' was never awaited"が発生する。
+# pytest-asyncioのイベントループがasyncpgの接続クリーンアップより先に閉じることが原因。
+# SQLAlchemy/asyncpgの既知の問題のため抑制する。 https://github.com/sqlalchemy/sqlalchemy/issues/8145
+filterwarnings = [
+    "ignore::RuntimeWarning:sqlalchemy",
+]
 
 [tool.mypy]
 python_version = "3.11"
