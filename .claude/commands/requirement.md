@@ -3,12 +3,12 @@ name: requirement
 description: 入力される要求から要件定義書を作成する
 ---
 ## usage
-引数としてIssue番号を渡される
-github から issue の内容を取得し、要件定義書をrequirement.mdとして出力する。
+入力された自然言語から要求を整理する。
 要件整理の際は 質問プロセス に従って質疑応答を繰り返し、詳細を詰めていく
 
+
 ## 出力
-  path: docs/changes/<issue_id>/requirement.md
+  gh コマンドを使って issue を作成する
   format: markdown
   items: 
     why: なぜその機能が必要なのかを説明する
@@ -19,28 +19,20 @@ github から issue の内容を取得し、要件定義書をrequirement.mdと�
 
 ## UseCase - ユースケース定義
   
-標準的なユースケースフォーマットで記述してください：
+Gherkinフレームで記述してください（下記のように）
 ```
-  UC-XXX: <ユースケース名>
-  
-  アクター: <主アクター>
-  目的: <達成したいこと>
-  
-  事前条件:
-  - <条件1>
-  - <条件2>
-  
-  基本フロー:
-  1. <ステップ1>
-  2. <ステップ2>
-  ...
-  
-  代替フロー:
-  - <代替パターン>
-  
-  事後条件:
-  - <結果1>
-  - <結果2>
+Feature: 顧客管理アシスタントのルーティング
+
+  Scenario: 顧客情報の照会
+    Given データベースに「田中太郎」の情報が存在する
+    When エンドポイントに「田中さんの連絡先を教えて」と送信する
+    Then MCPツール「CustomerSearch」が実行される
+    And 応答に「090-xxxx-xxxx」が含まれている
+
+  Scenario: 支払い情報の更新（Stripe連携）
+    Given ユーザーのサブスクリプションが有効である
+    When エンドポイントに「支払い方法をカードに変更したい」と送信する
+    Then MCPツール「StripeIntegration」から「SetupIntentURL」が返される
 ```
 
 ## 既存システムとの整合性確認
