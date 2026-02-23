@@ -10,7 +10,7 @@ from app.core.config import get_settings
 from app.db.base import Base
 
 # モデルを追加したらここでインポート
-# from app.models import YourModel  # noqa: F401
+from app.models import account, account_password, account_oauth, account_passkey, refresh_token  # noqa: F401
 
 config = context.config
 
