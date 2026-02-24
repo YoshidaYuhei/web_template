@@ -44,9 +44,7 @@ class RefreshUseCase:
             token_record.account_id, new_refresh_token_raw, expires_at
         )
 
-        access_token = create_access_token(
-            data={"sub": str(token_record.account_id)}
-        )
+        access_token = create_access_token(data={"sub": str(token_record.account_id)})
 
         return RefreshResult(
             access_token=access_token,

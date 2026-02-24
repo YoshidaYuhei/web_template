@@ -37,6 +37,14 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
 
+    # Redis
+    redis_host: str = "localhost"
+    redis_port: int = 6379
+
+    @property
+    def celery_broker_url(self) -> str:
+        return f"redis://{self.redis_host}:{self.redis_port}/0"
+
     # OpenAI
     openai_api_key: str = ""
     openai_model: str = "gpt-4o-mini"

@@ -52,9 +52,7 @@ class TestLoginUseCase:
         async with test_session_factory() as session:
             rt = (
                 await session.execute(
-                    select(RefreshToken).where(
-                        RefreshToken.account_id == account_id
-                    )
+                    select(RefreshToken).where(RefreshToken.account_id == account_id)
                 )
             ).scalar_one()
             assert rt is not None
