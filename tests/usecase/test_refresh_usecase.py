@@ -9,9 +9,7 @@ from app.models.refresh_token import RefreshToken
 from app.usecase.refresh_usecase import RefreshUseCase
 
 
-async def _create_account_with_refresh_token(
-    session, *, days=7, revoked=False
-):
+async def _create_account_with_refresh_token(session, *, days=7, revoked=False):
     account = Account(email="user@example.com")
     session.add(account)
     await session.flush()
