@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { SignupPage } from './SignupPage'
+import { LoginPage } from './LoginPage'
 import * as api from '../api/api'
 
 const mockNavigate = vi.fn()
@@ -14,7 +14,7 @@ vi.mock('react-router-dom', async () => {
 })
 
 vi.mock('../api/api', () => ({
-  signup: vi.fn(),
+  login: vi.fn(),
   ApiError: class extends Error {
     status: number
     body: unknown
@@ -32,17 +32,21 @@ vi.mock('../contexts/AuthContext', () => ({
   }),
 }))
 
-const mockSignup = vi.mocked(api.signup)
+const mockLogin = vi.mocked(api.login)
 
-function renderSignupPage() {
+function renderLoginPage() {
   return render(
-    <MemoryRouter initialEntries={['/signup']}>
-      <SignupPage />
+    <MemoryRouter initialEntries={['/login']}>
+      <LoginPage />
     </MemoryRouter>,
   )
 }
 
-const mockResponse: api.SignupResponse = {
+beforeEach(() => {
+  vi.clearAllMocks()
+})
+
+const mockResponse: api.LoginResponse = {
   account: {
     id: 1,
     email: 'user@example.com',
@@ -59,25 +63,21 @@ const mockResponse: api.SignupResponse = {
   },
 }
 
-beforeEach(() => {
-  vi.clearAllMocks()
-})
-
-describe('SignupPage', () => {
-  it('メールアドレスとパスワードの入力欄、サインアップボタンが表示される', () => {
-    renderSignupPage()
+describe('LoginPage', () => {
+  it('メールアドレスとパスワードの入力欄、ログインボタンが表示される', () => {
+    renderLoginPage()
     expect(screen.getByLabelText('メールアドレス')).toBeInTheDocument()
     expect(screen.getByLabelText('パスワード')).toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: 'サインアップ' }),
+      screen.getByRole('button', { name: 'ログイン' }),
     ).toBeInTheDocument()
   })
 
   it('メールアドレスが空の状態で送信するとバリデーションエラーが表示される', async () => {
     const user = userEvent.setup()
-    renderSignupPage()
+    renderLoginPage()
     await user.type(screen.getByLabelText('パスワード'), 'mypassword1')
-    await user.click(screen.getByRole('button', { name: 'サインアップ' }))
+    await user.click(screen.getByRole('button', { name: 'ログイン' }))
     expect(
       screen.getByText('メールアドレスを入力してください'),
     ).toBeInTheDocument()
@@ -85,10 +85,10 @@ describe('SignupPage', () => {
 
   it('メールアドレスの形式が不正な場合にバリデーションエラーが表示される', async () => {
     const user = userEvent.setup()
-    renderSignupPage()
+    renderLoginPage()
     await user.type(screen.getByLabelText('メールアドレス'), 'invalid')
     await user.type(screen.getByLabelText('パスワード'), 'mypassword1')
-    await user.click(screen.getByRole('button', { name: 'サインアップ' }))
+    await user.click(screen.getByRole('button', { name: 'ログイン' }))
     expect(
       screen.getByText('有効なメールアドレスを入力してください'),
     ).toBeInTheDocument()
@@ -96,49 +96,35 @@ describe('SignupPage', () => {
 
   it('パスワードが空の状態で送信するとバリデーションエラーが表示される', async () => {
     const user = userEvent.setup()
-    renderSignupPage()
+    renderLoginPage()
     await user.type(
       screen.getByLabelText('メールアドレス'),
       'user@example.com',
     )
-    await user.click(screen.getByRole('button', { name: 'サインアップ' }))
+    await user.click(screen.getByRole('button', { name: 'ログイン' }))
     expect(
       screen.getByText('パスワードを入力してください'),
     ).toBeInTheDocument()
   })
 
-  it('パスワードが8文字未満の場合にバリデーションエラーが表示される', async () => {
-    const user = userEvent.setup()
-    renderSignupPage()
-    await user.type(
-      screen.getByLabelText('メールアドレス'),
-      'user@example.com',
-    )
-    await user.type(screen.getByLabelText('パスワード'), 'short')
-    await user.click(screen.getByRole('button', { name: 'サインアップ' }))
-    expect(
-      screen.getByText('パスワードは8文字以上で入力してください'),
-    ).toBeInTheDocument()
-  })
-
   it('バリデーションエラー時にAPIリクエストが送信されない', async () => {
     const user = userEvent.setup()
-    renderSignupPage()
-    await user.click(screen.getByRole('button', { name: 'サインアップ' }))
-    expect(mockSignup).not.toHaveBeenCalled()
+    renderLoginPage()
+    await user.click(screen.getByRole('button', { name: 'ログイン' }))
+    expect(mockLogin).not.toHaveBeenCalled()
   })
 
-  it('正常な入力でサインアップボタンを押すとAPIリクエストが送信される', async () => {
+  it('正常な入力でログインボタンを押すとAPIリクエストが送信される', async () => {
     const user = userEvent.setup()
-    mockSignup.mockResolvedValue(mockResponse)
-    renderSignupPage()
+    mockLogin.mockResolvedValue(mockResponse)
+    renderLoginPage()
     await user.type(
       screen.getByLabelText('メールアドレス'),
       'user@example.com',
     )
     await user.type(screen.getByLabelText('パスワード'), 'mypassword1')
-    await user.click(screen.getByRole('button', { name: 'サインアップ' }))
-    expect(mockSignup).toHaveBeenCalledWith({
+    await user.click(screen.getByRole('button', { name: 'ログイン' }))
+    expect(mockLogin).toHaveBeenCalledWith({
       email: 'user@example.com',
       password: 'mypassword1',
     })
@@ -146,80 +132,55 @@ describe('SignupPage', () => {
 
   it('API成功時にloginActionが呼ばれダッシュボードに遷移する', async () => {
     const user = userEvent.setup()
-    mockSignup.mockResolvedValue(mockResponse)
-    renderSignupPage()
+    mockLogin.mockResolvedValue(mockResponse)
+    renderLoginPage()
     await user.type(
       screen.getByLabelText('メールアドレス'),
       'user@example.com',
     )
     await user.type(screen.getByLabelText('パスワード'), 'mypassword1')
-    await user.click(screen.getByRole('button', { name: 'サインアップ' }))
+    await user.click(screen.getByRole('button', { name: 'ログイン' }))
     await waitFor(() => {
       expect(mockLoginAction).toHaveBeenCalledWith(mockResponse)
       expect(mockNavigate).toHaveBeenCalledWith('/')
     })
   })
 
-  it('API失敗時(409)に重複メールのエラーメッセージが表示される', async () => {
+  it('API失敗時(401)に認証エラーメッセージが表示される', async () => {
     const user = userEvent.setup()
-    mockSignup.mockRejectedValue(
-      new api.ApiError(409, {
-        detail: 'このメールアドレスは既に登録されています',
+    mockLogin.mockRejectedValue(
+      new api.ApiError(401, {
+        detail: 'メールアドレスまたはパスワードが正しくありません',
       }),
     )
-    renderSignupPage()
-    await user.type(
-      screen.getByLabelText('メールアドレス'),
-      'existing@example.com',
-    )
-    await user.type(screen.getByLabelText('パスワード'), 'mypassword1')
-    await user.click(screen.getByRole('button', { name: 'サインアップ' }))
-    await waitFor(() => {
-      expect(
-        screen.getByText('このメールアドレスは既に登録されています'),
-      ).toBeInTheDocument()
-    })
-  })
-
-  it('API失敗時(422)にバリデーションエラーメッセージが表示される', async () => {
-    const user = userEvent.setup()
-    mockSignup.mockRejectedValue(
-      new api.ApiError(422, {
-        detail: [
-          {
-            loc: ['body', 'password'],
-            msg: 'min_length',
-            type: 'value_error',
-          },
-        ],
-      }),
-    )
-    renderSignupPage()
+    renderLoginPage()
     await user.type(
       screen.getByLabelText('メールアドレス'),
       'user@example.com',
     )
-    await user.type(screen.getByLabelText('パスワード'), 'mypassword1')
-    await user.click(screen.getByRole('button', { name: 'サインアップ' }))
+    await user.type(screen.getByLabelText('パスワード'), 'wrongpassword')
+    await user.click(screen.getByRole('button', { name: 'ログイン' }))
     await waitFor(() => {
-      expect(screen.getByText('入力内容に誤りがあります')).toBeInTheDocument()
+      expect(
+        screen.getByText('メールアドレスまたはパスワードが正しくありません'),
+      ).toBeInTheDocument()
     })
   })
 
   it('ネットワークエラー時にサーバー接続エラーメッセージが表示される', async () => {
     const user = userEvent.setup()
-    mockSignup.mockRejectedValue(
+    mockLogin.mockRejectedValue(
       new Error(
         'サーバーに接続できません。しばらくしてから再試行してください',
       ),
     )
-    renderSignupPage()
+    renderLoginPage()
     await user.type(
       screen.getByLabelText('メールアドレス'),
       'user@example.com',
     )
     await user.type(screen.getByLabelText('パスワード'), 'mypassword1')
-    await user.click(screen.getByRole('button', { name: 'サインアップ' }))
+    await user.click(screen.getByRole('button', { name: 'ログイン' }))
     await waitFor(() => {
       expect(
         screen.getByText(
@@ -229,31 +190,31 @@ describe('SignupPage', () => {
     })
   })
 
-  it('API呼び出し中はサインアップボタンがローディング状態になる', async () => {
+  it('API呼び出し中はログインボタンがローディング状態になる', async () => {
     const user = userEvent.setup()
-    let resolveSignup: (value: api.SignupResponse) => void
-    mockSignup.mockReturnValue(
+    let resolveLogin: (value: api.LoginResponse) => void
+    mockLogin.mockReturnValue(
       new Promise((resolve) => {
-        resolveSignup = resolve
+        resolveLogin = resolve
       }),
     )
-    renderSignupPage()
+    renderLoginPage()
     await user.type(
       screen.getByLabelText('メールアドレス'),
       'user@example.com',
     )
     await user.type(screen.getByLabelText('パスワード'), 'mypassword1')
-    await user.click(screen.getByRole('button', { name: 'サインアップ' }))
-    expect(screen.getByRole('button', { name: '登録中...' })).toBeDisabled()
+    await user.click(screen.getByRole('button', { name: 'ログイン' }))
+    expect(screen.getByRole('button', { name: 'ログイン中...' })).toBeDisabled()
 
-    resolveSignup!(mockResponse)
+    resolveLogin!(mockResponse)
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith('/')
     })
   })
 
-  it('ログインへのリンクが表示される', () => {
-    renderSignupPage()
-    expect(screen.getByText('ログイン')).toBeInTheDocument()
+  it('サインアップへのリンクが表示される', () => {
+    renderLoginPage()
+    expect(screen.getByText('サインアップ')).toBeInTheDocument()
   })
 })

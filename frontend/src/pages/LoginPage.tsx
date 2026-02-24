@@ -1,6 +1,6 @@
 import { type FormEvent, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { signup, ApiError } from '../api/api'
+import { login, ApiError } from '../api/api'
 import { useAuth } from '../contexts/AuthContext'
 
 function validateEmail(email: string): string | null {
@@ -12,11 +12,10 @@ function validateEmail(email: string): string | null {
 
 function validatePassword(password: string): string | null {
   if (!password) return 'パスワードを入力してください'
-  if (password.length < 8) return 'パスワードは8文字以上で入力してください'
   return null
 }
 
-export function SignupPage() {
+export function LoginPage() {
   const navigate = useNavigate()
   const { loginAction } = useAuth()
   const [email, setEmail] = useState('')
@@ -39,15 +38,13 @@ export function SignupPage() {
 
     setLoading(true)
     try {
-      const response = await signup({ email, password })
+      const response = await login({ email, password })
       loginAction(response)
       navigate('/')
     } catch (err) {
       if (err instanceof ApiError) {
-        if (err.status === 409) {
-          setApiError('このメールアドレスは既に登録されています')
-        } else if (err.status === 422) {
-          setApiError('入力内容に誤りがあります')
+        if (err.status === 401) {
+          setApiError('メールアドレスまたはパスワードが正しくありません')
         } else {
           setApiError('エラーが発生しました')
         }
@@ -63,7 +60,7 @@ export function SignupPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md space-y-8">
         <h1 className="text-center text-3xl font-bold text-gray-900">
-          アカウント作成
+          ログイン
         </h1>
 
         {apiError && (
@@ -125,14 +122,14 @@ export function SignupPage() {
             disabled={loading}
             className="w-full rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
           >
-            {loading ? '登録中...' : 'サインアップ'}
+            {loading ? 'ログイン中...' : 'ログイン'}
           </button>
         </form>
 
         <p className="text-center text-sm text-gray-600">
-          既にアカウントをお持ちの方は
-          <Link to="/login" className="text-indigo-600 hover:text-indigo-500">
-            ログイン
+          アカウントをお持ちでない方は
+          <Link to="/signup" className="text-indigo-600 hover:text-indigo-500">
+            サインアップ
           </Link>
         </p>
       </div>

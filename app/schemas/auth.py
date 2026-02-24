@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
 
 from app.schemas.account import AccountResponse
 
@@ -16,3 +16,19 @@ class SignupResponse(BaseModel):
 
     account: AccountResponse
     token: TokenResponse
+
+
+class LoginRequest(BaseModel):
+    """ログインリクエスト"""
+
+    email: EmailStr
+    password: str = Field(..., min_length=1)
+
+
+class RefreshRequest(BaseModel):
+    """トークンリフレッシュリクエスト"""
+
+    refresh_token: str
+
+
+LoginResponse = SignupResponse
