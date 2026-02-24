@@ -22,6 +22,8 @@ dependencies = [
     # Validation & Settings
     "pydantic[email]>=2.0.0",
     "pydantic-settings>=2.0.0",
+    # Task Queue
+    "celery[redis]>=5.4.0",
     # Utils
     "python-multipart>=0.0.12",
     "httpx>=0.27.0",
