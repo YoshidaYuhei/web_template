@@ -47,14 +47,13 @@ export class ApiError extends Error {
   }
 }
 
-export async function signup(request: SignupRequest): Promise<SignupResponse> {
+export type LoginRequest = SignupRequest
+export type LoginResponse = SignupResponse
+
+async function apiRequest<T>(url: string, options: RequestInit): Promise<T> {
   let response: Response
   try {
-    response = await fetch('/api/auth/signup/password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(request),
-    })
+    response = await fetch(url, options)
   } catch {
     throw new Error('サーバーに接続できません。しばらくしてから再試行してください')
   }
@@ -70,4 +69,43 @@ export async function signup(request: SignupRequest): Promise<SignupResponse> {
   }
 
   return response.json()
+}
+
+export async function signup(request: SignupRequest): Promise<SignupResponse> {
+  return apiRequest<SignupResponse>('/api/auth/signup/password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(request),
+  })
+}
+
+export async function login(request: LoginRequest): Promise<LoginResponse> {
+  return apiRequest<LoginResponse>('/api/auth/login/password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(request),
+  })
+}
+
+export async function refreshToken(token: string): Promise<TokenResponse> {
+  return apiRequest<TokenResponse>('/api/auth/refresh', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refresh_token: token }),
+  })
+}
+
+export async function logout(accessToken: string, refreshTokenValue: string): Promise<void> {
+  try {
+    await fetch('/api/auth/logout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ refresh_token: refreshTokenValue }),
+    })
+  } catch {
+    // ログアウトはベストエフォート：失敗してもクライアント側の認証状態はクリアされる
+  }
 }
